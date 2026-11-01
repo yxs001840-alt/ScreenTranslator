@@ -22,18 +22,16 @@ class MainActivity : AppCompatActivity() {
             setPadding(64, 64, 64, 64)
         }
         root.addView(TextView(this).apply {
-            text = "1. 开启无障碍服务
-2. 单击悬浮球：开启/暂停翻译
-3. 长按悬浮球：切换英/日/韩/法/俄"
+            text = "1. Enable Accessibility Service\n2. Tap ball: ON/OFF\n3. Long press ball: Switch Language"
             textSize = 15f
             setPadding(0, 0, 0, 60)
         })
         root.addView(Button(this).apply {
-            text = "第一步：开启无障碍翻译服务"
+            text = "Step 1: Enable Accessibility Service"
             setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
         })
         root.addView(Button(this).apply {
-            text = "第二步：加入后台省电白名单"
+            text = "Step 2: Ignore Battery Optimization"
             setOnClickListener {
                 val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
                 if (!pm.isIgnoringBatteryOptimizations(packageName)) {

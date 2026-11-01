@@ -27,11 +27,11 @@ class ScreenTranslateService : AccessibilityService() {
     private val translationCache = LruCache<String, String>(1000)
     private val ignoredPackages = setOf("com.android.systemui", "com.google.android.inputmethod.latin")
     private val languageOptions = listOf(
-        "英 ➔ 中" to TranslateLanguage.ENGLISH,
-        "日 ➔ 中" to TranslateLanguage.JAPANESE,
-        "韩 ➔ 中" to TranslateLanguage.KOREAN,
-        "法 ➔ 中" to TranslateLanguage.FRENCH,
-        "俄 ➔ 中" to TranslateLanguage.RUSSIAN
+        "EN -> ZH" to TranslateLanguage.ENGLISH,
+        "JA -> ZH" to TranslateLanguage.JAPANESE,
+        "KO -> ZH" to TranslateLanguage.KOREAN,
+        "FR -> ZH" to TranslateLanguage.FRENCH,
+        "RU -> ZH" to TranslateLanguage.RUSSIAN
     )
     private var currentLangIndex = 0
     private var currentTranslator: Translator? = null
@@ -59,7 +59,7 @@ class ScreenTranslateService : AccessibilityService() {
         ).apply { gravity = Gravity.TOP or Gravity.START; x = 40; y = 400 }
 
         floatingBall = TextView(this).apply {
-            text = "加载中"; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
+            text = "..."; gravity = Gravity.CENTER; setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#CC1E88E5")); textSize = 13f
             var initialX = 0; var initialY = 0; var initialTouchX = 0f; var initialTouchY = 0f
             var longPressJob: Job? = null; var isLongPressed = false
@@ -97,15 +97,15 @@ class ScreenTranslateService : AccessibilityService() {
         currentTranslator?.close(); translationCache.evictAll()
         val client = Translation.getClient(TranslatorOptions.Builder()
             .setSourceLanguage(languageOptions[index].second).setTargetLanguage(TranslateLanguage.CHINESE).build())
-        currentTranslator = client; floatingBall.text = "加载中"
+        currentTranslator = client; floatingBall.text = "..."
         client.downloadModelIfNeeded(DownloadConditions.Builder().build())
             .addOnSuccessListener { updateFloatingBallUI(); if (isTranslating) triggerDebouncedScan() }
-            .addOnFailureListener { floatingBall.text = "失败" }
+            .addOnFailureListener { floatingBall.text = "ERR" }
     }
 
     private fun updateFloatingBallUI() {
-        val s = languageOptions[currentLangIndex].first.substring(0, 1)
-        floatingBall.text = if (isTranslating) "$s:开" else "$s:关"
+        val s = languageOptions[currentLangIndex].first.substring(0, 2)
+        floatingBall.text = if (isTranslating) "$s:ON" else "$s:OFF"
         floatingBall.setBackgroundColor(Color.parseColor(if (isTranslating) "#CC43A047" else "#CC1E88E5"))
     }
 
@@ -121,7 +121,7 @@ class ScreenTranslateService : AccessibilityService() {
         }
         languageOptions.forEachIndexed { idx, (title, _) ->
             menu.addView(TextView(this).apply {
-                text = if (idx == currentLangIndex) "✓ $title" else "   $title"
+                text = if (idx == currentLangIndex) "* $title" else "  $title"
                 setTextColor(if (idx == currentLangIndex) Color.parseColor("#81C784") else Color.WHITE)
                 textSize = 14f; setPadding(28, 20, 40, 20)
                 setOnClickListener { dismissLanguageMenu(); updateTranslatorLanguage(idx) }
@@ -178,10 +178,10 @@ class ScreenTranslateService : AccessibilityService() {
     private fun shouldTranslate(t: String): Boolean {
         if (t.length < 2 || t.startsWith("http")) return false
         return when (languageOptions[currentLangIndex].second) {
-            TranslateLanguage.JAPANESE -> t.any { it in '\u3040'..'\u30FF' }
-            TranslateLanguage.KOREAN -> t.any { it in '\uAC00'..'\uD7AF' || it in '\u3130'..'\u318F' }
-            TranslateLanguage.RUSSIAN -> t.any { it in '\u0400'..'\u04FF' }
-            else -> t.any { it in 'a'..'z' || it in 'A'..'Z' || it in '\u00C0'..'\u00FF' }
+            TranslateLanguage.JAPANESE -> t.any { it.code in 0x3040..0x30FF }
+            TranslateLanguage.KOREAN -> t.any { it.code in 0xAC00..0xD7AF || it.code in 0x3130..0x318F }
+            TranslateLanguage.RUSSIAN -> t.any { it.code in 0x0400..0x04FF }
+            else -> t.any { it in 'a'..'z' || it in 'A'..'Z' || it.code in 0x00C0..0x00FF }
         }
     }
 
