@@ -22,7 +22,9 @@ class MainActivity : AppCompatActivity() {
             setPadding(64, 64, 64, 64)
         }
         root.addView(TextView(this).apply {
-            text = "1. 开启无障碍服务\n2. 单击悬浮球：开启/暂停翻译\n3. 长按悬浮球：切换英/日/韩/法/俄"
+            text = "1. 开启无障碍服务
+2. 单击悬浮球：开启/暂停翻译
+3. 长按悬浮球：切换英/日/韩/法/俄"
             textSize = 15f
             setPadding(0, 0, 0, 60)
         })
