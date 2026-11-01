@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">全局无痕屏幕翻译</string>
+    <string name="accessibility_service_label">全局无痕屏幕翻译服务</string>
+    <string name="accessibility_service_description">后台实时提取当前网页与应用文本并无痕覆盖翻译。</string>
+</resources>
